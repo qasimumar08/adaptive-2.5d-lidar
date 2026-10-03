@@ -1,0 +1,68 @@
+# =============================================================================
+# Foveated 2.5D Grid Configuration
+# Adaptive Variable Resolution Grid Engine — PS 26053
+# =============================================================================
+
+grid:
+  # Coordinate frame: sensor-centric (Lidar at origin)
+  frame_id: "lidar_link"
+  max_range: 100.0  # meters — outer boundary of grid
+
+  # Zone definitions: resolution decreases with distance
+  zones:
+    - name: "immediate"
+      radius_min: 0.0
+      radius_max: 10.0
+      cell_size: 0.05   # 5 cm — highest resolution for safety-critical area
+      purpose: "Curbs, potholes, close pedestrians"
+
+    - name: "near"
+      radius_min: 10.0
+      radius_max: 30.0
+      cell_size: 0.10   # 10 cm — lane-level objects
+      purpose: "Tactical obstacle detection"
+
+    - name: "mid"
+      radius_min: 30.0
+      radius_max: 60.0
+      cell_size: 0.25   # 25 cm — coarse obstacle awareness
+      purpose: "Path planning horizon"
+
+    - name: "far"
+      radius_min: 60.0
+      radius_max: 100.0
+      cell_size: 0.50   # 50 cm — rough terrain profile
+      purpose: "Strategic awareness"
+
+  # Zone boundary handling
+  boundary:
+    overlap_cells: 2          # Number of overlap cells at zone boundaries
+    interpolation: "bilinear" # bilinear | nearest
+
+  # Cell data structure config
+  cell:
+    elevation_init_min: 1000.0   # Initial min elevation (will be overwritten)
+    elevation_init_max: -1000.0  # Initial max elevation (will be overwritten)
+    unknown_threshold: 0         # point_count below this → cell is "unknown"
+    confidence_threshold: 0.5    # Min confidence to trust semantic class
+
+  # Memory management
+  memory:
+    hash_map_type: "flat"        # flat | robin — flat hash map for O(1) lookup
+    preallocate_cells: 250000    # Approximate total cells across all zones
+    clear_strategy: "per_frame"  # per_frame | rolling — clear grid each frame or accumulate
+
+# Semantic class definitions (must match model output)
+semantic_classes:
+  0: { name: "drivable_surface",   type: "terrain",  color: [0, 200, 0] }
+  1: { name: "non_drivable_terrain", type: "terrain", color: [139, 90, 43] }
+  2: { name: "static_obstacle",    type: "object",   color: [128, 128, 128] }
+  3: { name: "dynamic_vehicle",    type: "object",   color: [0, 100, 255] }
+  4: { name: "dynamic_pedestrian", type: "object",   color: [255, 0, 0] }
+  5: { name: "unknown_noise",      type: "ignore",   color: [50, 50, 50] }
+
+# Occupancy mapping
+occupancy:
+  free: 0
+  occupied: 1
+  unknown: 2

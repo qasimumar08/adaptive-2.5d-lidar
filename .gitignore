@@ -1,0 +1,80 @@
+# =============================================================================
+# Git Ignore — Adaptive Variable Resolution 2.5D Lidar Mapping
+# =============================================================================
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Python Bytecode & Testing Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# C++ & CMake Build Artifacts
+build/
+cmake-build-*/
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+CMakeUserPresets.json
+
+# Model Weights & Compiled Inference Graphs
+models/*.mxr
+models/*.onnx
+models/*.pt
+models/*.pth
+models/*.bin
+models/*.weights
+*.onnx
+*.onnx.data
+*.mxr
+*.pt
+*.pth
+
+# Large Datasets & Raw Sensor Logs
+data/
+*.bag
+*.db3
+*.pcd
+*.las
+*.laz
+
+# Demo Execution & Video Artifacts
+demo/output.mp4
+demo/output.json
+video_demo/
+*.mp4
+
+# Experiment Tracking & Logs
+runs/
+wandb/
+*.log
+
+# AI Scratchpads, Prompts & Assistant Context (kept locally, never pushed)
+PLAN.md
+PROJECT_CONTEXT.md
+PROMPTS.md
+*.prompt
+*.prompt.md
+
+# IDE, OS & Editor Artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

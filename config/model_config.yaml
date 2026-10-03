@@ -1,0 +1,149 @@
+# =============================================================================
+# Model Configuration — PS 26053
+# Semantic Segmentation of Lidar Point Clouds
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Primary Model: Sparse U-Net (spconv-triton)
+# ---------------------------------------------------------------------------
+sparse_unet:
+  # Voxelization params (3D → sparse voxel grid)
+  voxel_size: [0.05, 0.05, 0.05]  # meters (x, y, z)
+  point_cloud_range: [-100, -100, -5, 100, 100, 5]  # [x_min, y_min, z_min, x_max, y_max, z_max]
+  max_points_per_voxel: 5
+  max_voxels: 80000
+
+  # Network architecture
+  encoder_channels: [16, 32, 64, 128, 256]
+  decoder_channels: [256, 128, 64, 32, 16]
+  num_classes: 6          # 5 semantic + 1 unknown/noise
+  dropout: 0.3
+  use_batch_norm: true
+
+  # Sparse conv type
+  conv_type: "submconv"   # submconv (submanifold) or spconv (regular sparse)
+
+# ---------------------------------------------------------------------------
+# Fallback Model: PointNet++ (pure PyTorch, AMD-safe)
+# ---------------------------------------------------------------------------
+pointnet2:
+  num_classes: 6
+  num_points: 32768       # Points per sample (random subsample if cloud is larger)
+  use_normals: false
+
+  # Set Abstraction layers
+  sa_layers:
+    - npoint: 4096
+      radius: 0.2
+      nsample: 32
+      mlp: [32, 32, 64]
+    - npoint: 1024
+      radius: 0.4
+      nsample: 64
+      mlp: [64, 64, 128]
+    - npoint: 256
+      radius: 0.8
+      nsample: 128
+      mlp: [128, 128, 256]
+    - npoint: 64
+      radius: 1.6
+      nsample: 256
+      mlp: [256, 256, 512]
+
+  # Feature Propagation layers
+  fp_layers:
+    - mlp: [256, 256]
+    - mlp: [256, 128]
+    - mlp: [128, 128, 128]
+    - mlp: [128, 128, 128]
+
+# ---------------------------------------------------------------------------
+# Training
+# ---------------------------------------------------------------------------
+training:
+  epochs: 50
+  batch_size: 4            # Adjust based on VRAM (24 GB → 4, 16 GB → 2)
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  scheduler: "cosine"      # cosine | step | onecycle
+  warmup_epochs: 5
+
+  # Loss function
+  loss:
+    type: "weighted_ce_lovasz"  # weighted_ce | lovasz | weighted_ce_lovasz
+    class_weights: [1.0, 2.0, 3.0, 4.0, 5.0, 0.5]  # Higher weight for rarer classes
+    lovasz_weight: 0.5      # Blend factor: total = CE + lovasz_weight * Lovász
+
+  # Data augmentation
+  augmentation:
+    random_rotation: true
+    rotation_range: [-3.14159, 3.14159]  # Full 360 deg around Z
+    random_flip: true       # X and Y axes
+    random_scale: [0.9, 1.1]
+    random_jitter: 0.02     # Std dev of Gaussian noise on xyz
+    random_drop: 0.1        # Drop 10% of points randomly
+
+  # Gradient accumulation (if batch doesn't fit in VRAM)
+  gradient_accumulation_steps: 1
+
+  # Validation
+  val_interval: 1           # Validate every N epochs
+  save_best: true           # Save model with best mIoU
+
+# ---------------------------------------------------------------------------
+# Dataset
+# ---------------------------------------------------------------------------
+dataset:
+  name: "semantickitti"
+  root: "./data/semantickitti"
+  train_sequences: [0, 1, 2, 3, 4, 5, 6, 7, 9, 10]
+  val_sequences: [8]
+  test_sequences: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+
+  # Label remapping: SemanticKITTI has 28 classes → our 6
+  label_remap:
+    # Drivable surface (class 0)
+    40: 0   # road
+    44: 0   # parking
+    48: 0   # sidewalk
+    49: 0   # other-ground
+    60: 0   # lane-marking
+
+    # Non-drivable terrain (class 1)
+    72: 1   # terrain
+    # Could also add curbs, etc.
+
+    # Static obstacles (class 2)
+    50: 2   # building
+    51: 2   # fence
+    52: 2   # other-structure
+    70: 2   # vegetation
+    71: 2   # trunk
+    80: 2   # pole
+    81: 2   # traffic-sign
+
+    # Dynamic vehicles (class 3)
+    10: 3   # car
+    11: 3   # bicycle
+    13: 3   # bus
+    15: 3   # motorcycle
+    16: 3   # on-rails
+    18: 3   # truck
+    20: 3   # other-vehicle
+
+    # Dynamic pedestrians (class 4)
+    30: 4   # person
+    31: 4   # bicyclist
+    32: 4   # motorcyclist
+
+    # Unknown / noise (class 5) — everything else
+    0: 5    # unlabeled
+    1: 5    # outlier
+
+# ---------------------------------------------------------------------------
+# Inference / Export
+# ---------------------------------------------------------------------------
+inference:
+  onnx_opset: 17
+  migraphx_cache: "./models/model_optimized.mxr"
+  quantization: "fp16"     # fp32 | fp16 | int8

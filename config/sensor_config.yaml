@@ -1,0 +1,69 @@
+# =============================================================================
+# Sensor Configuration — PS 26053
+# Lidar Sensor Parameters
+# =============================================================================
+
+# Active sensor (switch between presets)
+active_sensor: "vlp16"
+
+# ---------------------------------------------------------------------------
+# Velodyne VLP-16 (16-beam, most common budget option)
+# ---------------------------------------------------------------------------
+vlp16:
+  name: "Velodyne VLP-16"
+  type: "spinning_lidar"
+  beams: 16
+  range_min: 0.3          # meters
+  range_max: 100.0
+  points_per_second: 300000
+  rotation_rate: 10       # Hz (10 or 20)
+  vertical_fov: [-15.0, 15.0]  # degrees
+  horizontal_fov: [0.0, 360.0]
+  angular_resolution_vertical: 2.0   # degrees
+  angular_resolution_horizontal: 0.2 # degrees
+  accuracy: 0.03          # ±3 cm
+  ros2_topic: "/velodyne_points"
+  frame_id: "lidar_link"
+  point_format: "XYZI"    # x, y, z, intensity
+
+# ---------------------------------------------------------------------------
+# Ouster OS1-64 (64-beam, higher density)
+# ---------------------------------------------------------------------------
+os1_64:
+  name: "Ouster OS1-64"
+  type: "spinning_lidar"
+  beams: 64
+  range_min: 0.3
+  range_max: 120.0
+  points_per_second: 1310720  # at 1024x mode, 20Hz
+  rotation_rate: 20
+  vertical_fov: [-16.6, 16.6]
+  horizontal_fov: [0.0, 360.0]
+  angular_resolution_vertical: 0.52
+  angular_resolution_horizontal: 0.35
+  accuracy: 0.01          # ±1 cm
+  ros2_topic: "/ouster/points"
+  frame_id: "lidar_link"
+  point_format: "XYZI"
+
+# ---------------------------------------------------------------------------
+# Preprocessing tied to sensor
+# ---------------------------------------------------------------------------
+preprocessing:
+  ground_removal:
+    method: "ransac"           # ransac | csf (cloth simulation filter)
+    ransac_threshold: 0.15     # meters — max distance to ground plane
+    ransac_iterations: 100
+    ground_height_threshold: 0.3  # points within ±0.3m of estimated ground
+
+  voxel_downsampling:
+    enabled: true
+    voxel_size: 0.05           # meters — matches Zone 1 cell size
+
+  range_filter:
+    min_range: 0.5             # Ignore points closer than 0.5m (sensor noise)
+    max_range: 100.0           # Matches grid max_range
+
+  ego_motion_compensation:
+    enabled: true
+    odom_topic: "/odom"        # Odometry source for motion correction

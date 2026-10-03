@@ -1,0 +1,38 @@
+# =============================================================================
+# Training Dockerfile — AMD ROCm
+# PS 26053: Adaptive 2.5D Lidar Mapping
+# =============================================================================
+FROM rocm/pytorch:latest
+
+LABEL maintainer="PS26053 Team"
+LABEL description="Training environment for Adaptive 2.5D Lidar Mapping (AMD ROCm)"
+
+# Avoid interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    git \
+    wget \
+    unzip \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libeigen3-dev \
+    libboost-all-dev \
+    pybind11-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+# Working directory
+WORKDIR /workspace
+
+# Default command
+CMD ["/bin/bash"]

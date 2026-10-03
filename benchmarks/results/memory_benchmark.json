@@ -1,0 +1,107 @@
+{
+  "cell_size_bytes": 24,
+  "height_span_m": 6.0,
+  "max_range_m": 100.0,
+  "foveated_grid": {
+    "total_cells": 910400,
+    "memory_bytes": 21849600,
+    "memory_mb": 20.83740234375,
+    "zones": [
+      {
+        "name": "immediate",
+        "radius_range_m": [
+          0.0,
+          10.0
+        ],
+        "cell_size_m": 0.05,
+        "grid_dimensions": [
+          400,
+          400
+        ],
+        "num_cells": 160000,
+        "memory_bytes": 3840000,
+        "memory_mb": 3.662109375,
+        "purpose": "Curbs, potholes, close pedestrians"
+      },
+      {
+        "name": "near",
+        "radius_range_m": [
+          10.0,
+          30.0
+        ],
+        "cell_size_m": 0.1,
+        "grid_dimensions": [
+          600,
+          600
+        ],
+        "num_cells": 360000,
+        "memory_bytes": 8640000,
+        "memory_mb": 8.23974609375,
+        "purpose": "Tactical obstacle detection"
+      },
+      {
+        "name": "mid",
+        "radius_range_m": [
+          30.0,
+          60.0
+        ],
+        "cell_size_m": 0.25,
+        "grid_dimensions": [
+          480,
+          480
+        ],
+        "num_cells": 230400,
+        "memory_bytes": 5529600,
+        "memory_mb": 5.2734375,
+        "purpose": "Path planning horizon"
+      },
+      {
+        "name": "far",
+        "radius_range_m": [
+          60.0,
+          100.0
+        ],
+        "cell_size_m": 0.5,
+        "grid_dimensions": [
+          400,
+          400
+        ],
+        "num_cells": 160000,
+        "memory_bytes": 3840000,
+        "memory_mb": 3.662109375,
+        "purpose": "Strategic awareness"
+      }
+    ]
+  },
+  "uniform_2_5d_grid": {
+    "cell_size_m": 0.05,
+    "grid_dimensions": [
+      4000,
+      4000
+    ],
+    "total_cells": 16000000,
+    "memory_bytes": 384000000,
+    "memory_mb": 366.2109375
+  },
+  "uniform_3d_voxel_grid": {
+    "voxel_size_m": [
+      0.05,
+      0.05,
+      0.05
+    ],
+    "grid_dimensions": [
+      4000,
+      4000,
+      120
+    ],
+    "total_voxels": 1920000000,
+    "compact_memory_mb": 7324.21875,
+    "full_memory_mb": 43945.3125
+  },
+  "savings": {
+    "reduction_vs_uniform_2_5d_pct": 94.31,
+    "reduction_vs_3d_voxel_pct": 99.95258333333334,
+    "memory_reduction_factor_vs_uniform": 17.57469244288225,
+    "memory_reduction_factor_vs_3d_compact": 351.493848857645
+  }
+}

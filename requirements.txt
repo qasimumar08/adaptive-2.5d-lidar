@@ -1,0 +1,39 @@
+# =============================================================================
+# Python Dependencies — PS 26053
+# All packages verified for AMD ROCm compatibility
+# =============================================================================
+
+# NOTE: PyTorch ROCm is pre-installed in the rocm/pytorch Docker image.
+# Do NOT pip install torch here — it will overwrite with the CUDA version.
+
+# Sparse convolution (AMD-compatible via Triton)
+spconv-triton
+
+# ONNX inference (AMD MIGraphX backend)
+onnxruntime
+onnx
+
+# Point cloud processing (CPU compute, OpenGL viz — AMD-safe)
+open3d>=0.18
+
+# Data handling
+numpy>=1.24
+scipy
+scikit-learn
+pyyaml
+
+# Training utilities
+tensorboard
+tqdm
+wandb               # optional: experiment tracking
+
+# Loss functions
+# lovasz-softmax is often vendored inline — see src/model/losses.py
+
+# Visualization
+opencv-python-headless
+matplotlib
+
+# Testing
+pytest
+pytest-cov
