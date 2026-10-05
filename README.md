@@ -7,7 +7,7 @@
 [![ROS 2](https://img.shields.io/badge/ROS%202-Humble%20Hawksbill-22314E.svg)](https://docs.ros.org/en/humble/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **DRDO Problem Statement 26053 — Smart Vehicles**  
+> **SIH Problem Statement 26053 — Smart Vehicles**  
 > An end-to-end perception framework that transforms raw 3D Lidar point clouds into an adaptive, variable-resolution 2.5D elevation map with multi-class semantic segmentation optimized for AMD ROCm and HIP compute architectures.
 
 ---
